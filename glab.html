@@ -191,10 +191,16 @@ table.cal tbody tr:last-child td{border-bottom:1px solid #000}
 
 /* ---- 주차 상세 시트 ---- */
 [hidden]{display:none!important}
-.scrim{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:40}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:40;
+ opacity:0;visibility:hidden;transition:opacity .16s linear,visibility 0s linear .16s}
+.scrim.open{opacity:1;visibility:visible;transition:opacity .16s linear}
 .sheet{position:fixed;z-index:41;background:var(--paper);overflow-y:auto;
  -webkit-overflow-scrolling:touch;top:0;right:0;bottom:0;width:min(640px,94vw);
- border-left:2px solid #000}
+ border-left:2px solid #000;
+ visibility:hidden;transform:translateX(100%);
+ transition:transform .2s cubic-bezier(.2,.8,.2,1),visibility 0s linear .2s}
+.sheet.open{visibility:visible;transform:none;
+ transition:transform .2s cubic-bezier(.2,.8,.2,1)}
 .sheet-hd{position:sticky;top:0;z-index:1;background:var(--paper);display:flex;
  align-items:baseline;gap:14px;padding:20px 24px 11px;border-bottom:1px solid #000}
 .sheet-hd h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.025em}
@@ -210,7 +216,8 @@ table.cal tbody tr:last-child td{border-bottom:1px solid #000}
 .daybtn:focus-visible{outline:2px solid #000;outline-offset:2px}
 @media (max-width:860px){
   .sheet{top:auto;left:0;right:0;bottom:0;width:auto;max-height:86vh;
-   border-left:0;border-top:2px solid #000}
+   border-left:0;border-top:2px solid #000;transform:translateY(100%)}
+  .sheet.open{transform:none}
   .sheet-hd{padding:16px 18px 10px}
   .sheet-bd{padding:16px 18px 44px}
 }
@@ -282,23 +289,6 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
   <div class="now" id="now"></div>
 </section>
 
-<section id="pace">
-  <div class="shead"><h2>조별 기준 페이스</h2><span>400m 랩 / km 페이스</span></div>
-  <p class="lede">조 배정은 10km 기록으로 한다. 애매하면 아래 조에서 시작해 올라오는 편이 낫다. I(인터벌)가 기준이고 나머지 존은 여기서 계산된다.</p>
-  <div class="scroller"><table id="base"></table></div>
-</section>
-
-<section id="plan">
-  <div class="shead"><h2>변속주 5단계</h2><span>시즌 진행</span></div>
-  <ol class="chain" id="steps"></ol>
-  <p class="note">짧고 빠른 것에서 길고 레이스 페이스에 가까운 것으로 간다. 마지막 2주는 테이퍼링이다.</p>
-</section>
-
-<section id="routine">
-  <div class="shead"><h2>훈련 공통 순서</h2><span>매 세션</span></div>
-  <ol class="chain" id="routine-list"></ol>
-</section>
-
 <section id="schedule">
   <div class="shead"><h2>전체 일정</h2><span id="sched-label"></span></div>
   <div class="vt" role="group" aria-label="보기 방식">
@@ -319,6 +309,23 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
   </div>
 </section>
 
+<section id="pace">
+  <div class="shead"><h2>조별 기준 페이스</h2><span>400m 랩 / km 페이스</span></div>
+  <p class="lede">조 배정은 10km 기록으로 한다. 애매하면 아래 조에서 시작해 올라오는 편이 낫다. I(인터벌)가 기준이고 나머지 존은 여기서 계산된다.</p>
+  <div class="scroller"><table id="base"></table></div>
+</section>
+
+<section id="plan">
+  <div class="shead"><h2>변속주 5단계</h2><span>시즌 진행</span></div>
+  <ol class="chain" id="steps"></ol>
+  <p class="note">짧고 빠른 것에서 길고 레이스 페이스에 가까운 것으로 간다. 마지막 2주는 테이퍼링이다.</p>
+</section>
+
+<section id="routine">
+  <div class="shead"><h2>훈련 공통 순서</h2><span>매 세션</span></div>
+  <ol class="chain" id="routine-list"></ol>
+</section>
+
 <section id="chat">
   <div class="shead"><h2>오픈채팅방</h2><span>공지 전용</span></div>
   <dl class="info">
@@ -332,8 +339,8 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
 <footer><span id="f1"></span><span id="f2"></span></footer>
 </div>
 
-<div class="scrim" id="scrim" hidden></div>
-<aside class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-t">
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
   <div class="sheet-hd">
     <h3 id="sheet-t"></h3><span class="wd" id="sheet-d"></span>
     <button type="button" id="sheet-x">닫기</button>
@@ -1096,14 +1103,14 @@ function openSheet(w) {
   el('sheet-t').textContent = `${w.n}주차`;
   el('sheet-d').textContent = `${md(w.thu)}(목) / ${md(w.sun)}(일)`;
   el('sheet-bd').innerHTML = body(w, true);
-  sheet.hidden = scrim.hidden = false;
+  sheet.classList.add('open'); scrim.classList.add('open');
   document.body.style.overflow = 'hidden';
   sheet.scrollTop = 0;
   el('sheet-x').focus();
 }
 
 function closeSheet() {
-  sheet.hidden = scrim.hidden = true;
+  sheet.classList.remove('open'); scrim.classList.remove('open');
   document.body.style.overflow = '';
   if (lastFocus) lastFocus.focus();
 }
@@ -1120,7 +1127,7 @@ el('cal').addEventListener('click', e => {
 });
 el('sheet-x').addEventListener('click', closeSheet);
 scrim.addEventListener('click', closeSheet);
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !sheet.hidden) closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet(); });
 
 // 전체 일정
 el('weeks').innerHTML = plan.weeks.map(w => `
@@ -1134,6 +1141,30 @@ el('weeks').innerHTML = plan.weeks.map(w => `
     </summary>
     <div class="body">${body(w, true)}</div>
   </details>`).join('');
+
+// 주차 아코디언 펼침 모션. details 는 높이 전환을 지원하지 않아 직접 애니메이션한다.
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+document.querySelectorAll('#weeks details').forEach(d => {
+  const sum = d.querySelector('summary');
+  let anim = null;
+  sum.addEventListener('click', e => {
+    if (reduce.matches) return;                  // 모션 최소화 설정이면 기본 동작
+    e.preventDefault();
+    if (anim) anim.cancel();
+    const from = d.offsetHeight;
+    const opening = !d.open;
+    if (opening) d.open = true;                  // 열어야 전체 높이를 잴 수 있다
+    const to = opening ? d.scrollHeight : sum.offsetHeight;
+    d.style.overflow = 'hidden';
+    anim = d.animate({ height: [from + 'px', to + 'px'] },
+      { duration: 200, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    anim.onfinish = () => {
+      anim = null;
+      d.style.overflow = '';
+      if (!opening) d.open = false;
+    };
+  });
+});
 
 </script>
 </body>
