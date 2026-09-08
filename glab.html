@@ -65,6 +65,31 @@ section{margin:58px 0 0}
  white-space:nowrap}
 .lede{margin:-8px 0 18px;font-size:13px;color:var(--dim);max-width:74ch}
 
+.vt.mini{margin:0}
+.vt.mini button{padding:6px 13px;font-size:12px}
+.grp{display:flex;border:1px solid #000;width:max-content;max-width:100%;
+ overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0 0}
+.grp button{appearance:none;background:none;border:0;font:inherit;font-weight:700;font-size:12px;
+ letter-spacing:.02em;padding:7px 0;width:38px;flex:none;cursor:pointer;color:var(--dim)}
+.grp button+button{border-left:1px solid #000}
+.grp button[aria-pressed="true"]{background:var(--acc);color:#000}
+
+/* 내 조 카드. 표를 눕히지 않고 세워서 가로 스크롤을 없앤다. */
+.mine-hd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 2px}
+.mine-hd h4{margin:0;font-size:22px;font-weight:800;letter-spacing:-.03em}
+.mine-hd span{font-size:12px;color:var(--dim)}
+.facts.three{grid-template-columns:repeat(3,var(--g))}
+.facts.three .fact{padding:18px 14px 20px}
+.facts.three .fact:first-child{padding-left:0}
+.facts.three .fact:last-child{padding-right:0}
+.facts.three .fact dd{font-size:clamp(20px,3vw,30px)}
+.facts.three .fact dt{font-size:10px;letter-spacing:.12em}
+.allview{display:inline-block;margin-top:14px;font-size:12px;font-weight:600;
+ text-decoration:none;border-bottom:2px solid var(--acc);padding-bottom:2px;cursor:pointer}
+.allview:hover{background:var(--acc)}
+tr.on td{background:var(--acc-soft)}
+.scroller tr.on td:first-child{background:var(--acc-soft)}
+
 /* ---- 표 ---- */
 .scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:700px}
@@ -238,6 +263,8 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
 @media (max-width:860px){
   .wrap{padding:0 18px 64px}
   .facts{grid-template-columns:repeat(2,var(--g))}
+  .facts.three{grid-template-columns:repeat(3,var(--g))}
+  .facts.three .fact{padding:16px 10px 18px;border-bottom:0}
   .fact{padding:22px 22px 24px;border-bottom:1px solid var(--hair)}
   .fact:nth-child(2n+1){padding-left:0}
   .fact:nth-child(2n){border-right:0;padding-right:0}
@@ -918,6 +945,26 @@ const plan = {
 };
 const c = plan.crew;
 const upcoming = plan.weeks.find(w => w.sun >= today) || plan.weeks[plan.weeks.length - 1];
+
+// ---- 보기 모드 ----
+// mode: 'all' 전체 8개 조 / 'mine' 내 조만. 기본은 전체.
+// 조는 localStorage 에 남기고, #g=4 해시가 있으면 해시가 이긴다.
+const GK = 'glab.group', MK = 'glab.mode';
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} },
+};
+const findGroup = v => v == null ? -1
+  : plan.groups.findIndex(g => g.id === v || g.id === v + '조' || g.id.replace('조', '') === v);
+
+let myIdx = -1, mode = 'all';
+const hashG = (location.hash.match(/g=([^&]+)/) || [])[1];
+if (hashG) { myIdx = findGroup(decodeURIComponent(hashG)); if (myIdx >= 0) mode = 'mine'; }
+if (myIdx < 0) {
+  myIdx = findGroup(store.get(GK));
+  if (myIdx >= 0 && store.get(MK) === 'mine') mode = 'mine';
+}
+const mine = () => (mode === 'mine' && myIdx >= 0 ? myIdx : -1);
 const stage = plan.types[upcoming.type] && plan.types[upcoming.type].stage;
 
 el('eb').textContent = `${c.parent} 크루 훈련팀 / ${plan.season.name}`;
@@ -931,22 +978,27 @@ el('stage-label').textContent = stage ? `${plan.progression.indexOf(stage) + 1}�
 
 // 요약 수치
 const raceIn = Math.round((new Date(plan.season.raceDate) - new Date(today)) / 864e5);
-el('facts').innerHTML = [
-  ['이번 주', `<mark>${upcoming.n}</mark>`, `/ ${plan.season.totalWeeks}주차`],
-  ['다음 훈련', md(upcoming.thu), '목'],
-  ['대회까지', raceIn, '일'],
-  ['조 편성', plan.groups.length, '개조'],
-].map(([t, v, u]) => `<div class="fact"><dt>${t}</dt><dd>${v}<s>${u}</s></dd></div>`).join('');
+function drawFacts() {
+  const g = myIdx >= 0 ? plan.groups[myIdx] : null;
+  el('facts').innerHTML = [
+    ['이번 주', `<mark>${upcoming.n}</mark>`, `/ ${plan.season.totalWeeks}주차`],
+    ['다음 훈련', md(upcoming.thu), '목'],
+    ['대회까지', raceIn, '일'],
+    ['내 조', g ? esc(g.id) : '-', g ? `10km ${esc(g.tenK)}` : '미설정'],
+  ].map(([t, v, u]) => `<div class="fact"><dt>${t}</dt><dd>${v}<s>${u}</s></dd></div>`).join('');
+}
 
 // 조별 기준 페이스
 const keys = Object.keys(plan.offsets);
-el('base').innerHTML =
+function drawBase() {
+  el('base').innerHTML =
   `<thead><tr><th>조</th><th>10km 기준</th><th>목표 풀코스</th>${keys.map(k => `<th>${ZONE[k]}</th>`).join('')}</tr></thead>` +
-  `<tbody>${plan.groups.map(g => {
+  `<tbody>${plan.groups.map((g, i) => {
     const z = zones(g, plan.offsets);
-    return `<tr><td>${esc(g.id)}</td><td class="pl">${esc(g.tenK)}</td><td class="pl">${esc(g.goal)}</td>` +
+    return `<tr class="${i === myIdx ? 'on' : ''}"><td>${esc(g.id)}</td><td class="pl">${esc(g.tenK)}</td><td class="pl">${esc(g.goal)}</td>` +
       keys.map(k => cell(pace(z[k]), z[k] + '초')).join('') + '</tr>';
   }).join('')}</tbody>`;
+}
 
 // 표 세 가지
 const tbl = (head, rows) =>
@@ -955,7 +1007,7 @@ const tbl = (head, rows) =>
 const lapTable = t => tbl(
   '<th>조</th><th>총 바퀴</th><th>전반 질주</th><th>후반 질주</th><th>회복</th><th>질주 횟수</th><th>총거리</th><th>예상</th>',
   plan.groups.map((g, i) => { const s = session(g, i, t, plan.offsets);
-    return `<tr><td>${esc(g.id)}</td>`
+    return `<tr class="${i === myIdx ? 'on' : ''}"><td>${esc(g.id)}</td>`
       + cell(s.laps + '바퀴', `1~${s.split} / ${s.split + 1}~${s.laps}`)
       + cell(s.rep + '초', `${s.repPace} / ${s.repTime}`)
       + cell(s.back + '초', s.backPace)
@@ -966,7 +1018,7 @@ const lapTable = t => tbl(
 const setTable = t => tbl(
   `<th>조</th><th>목표</th><th>질주 ${t.rep}m</th><th>회복 ${t.rec}m</th><th>세트</th><th>총거리</th><th>예상</th>`,
   plan.groups.map((g, i) => { const s = session(g, i, t, plan.offsets);
-    return `<tr><td>${esc(g.id)}</td><td class="pl">${esc(g.goal)}</td>`
+    return `<tr class="${i === myIdx ? 'on' : ''}"><td>${esc(g.id)}</td><td class="pl">${esc(g.goal)}</td>`
       + cell(s.rep + '초', `${s.repPace} / ${s.repTime}`)
       + cell(s.rec + '초', `${s.recPace} / ${s.recTime}`)
       + cell(s.sets + '세트', '')
@@ -975,12 +1027,48 @@ const setTable = t => tbl(
 const rawTable = t => tbl(
   `<th>조</th><th>질주 ${t.rep}m</th><th>회복 ${t.rec}m</th><th>세트</th><th>총거리</th><th>소요</th>`,
   plan.groups.map((g, i) => { const s = session(g, i, t, plan.offsets);
-    return `<tr><td>${esc(g.id)}</td>`
+    return `<tr class="${i === myIdx ? 'on' : ''}"><td>${esc(g.id)}</td>`
       + cell(s.rep + '초', `${s.repPace} / ${s.repTime}`)
       + cell(s.recTime, s.recPace)
       + cell(s.sets + '세트', s.last ? `마지막 ${esc(s.last)}` : '')
       + cell(s.km + 'km', '') + cell(s.total, '') + '</tr>'; }).join(''))
   + (t.source ? `<div class="src">원본 ${esc(t.source)} / 조 배정 기준 ${esc(t.basis)}</div>` : '');
+
+// 내 조 카드. 3칸 요약(질주/회복/분량) + 나머지는 라벨 목록.
+// 타입이 달라도 3칸의 의미는 고정한다.
+function factsOf(t, s) {
+  const rec = t.mode === 'table' ? [s.recTime, s.recPace] : [s.rec + '초', s.recPace];
+  const bulk = t.mode === 'laps' ? [s.laps + '바퀴', s.km + 'km'] : [s.sets + '세트', s.km + 'km'];
+  return [['질주', s.rep + '초', s.repPace], ['회복', rec[0], rec[1]], ['분량', bulk[0], bulk[1]]];
+}
+function rowsOf(t, s) {
+  if (t.mode === 'laps') return [
+    ['후반 질주', `${s.back}초`, `${s.backPace} / ${s.split + 1}바퀴부터`],
+    ['구간 소요', `질주 ${s.repTime}`, `회복 ${s.recTime}`],
+    ['질주 횟수', `${s.reps}회`, `회복 ${s.recs}회`],
+    ['예상 소요', s.total, ''],
+  ];
+  if (t.mode === 'table') return [
+    ['구간 소요', `질주 ${s.repTime}`, ''],
+    ...(s.last ? [['마지막 세트', s.last, '']] : []),
+    ['소요', s.total, ''],
+  ];
+  return [
+    ['구간 소요', `질주 ${s.repTime}`, `회복 ${s.recTime}`],
+    ['총거리', `${s.km}km`, `${s.laps}바퀴`],
+    ['예상 소요', s.total, ''],
+  ];
+}
+function mineCard(t, i) {
+  const g = plan.groups[i], ss = session(g, i, t, plan.offsets);
+  return `
+    <div class="mine-hd"><h4>${esc(g.id)}</h4>
+      <span>10km ${esc(g.tenK)} / 목표 ${esc(g.goal)}</span></div>
+    <dl class="facts three">${factsOf(t, ss).map(([k, v, u]) =>
+      `<div class="fact"><dt>${k}</dt><dd>${v}<s>${u}</s></dd></div>`).join('')}</dl>
+    <dl class="info">${rowsOf(t, ss).map(([k, v, u]) =>
+      `<div><dt>${k}</dt><dd>${v}${u ? ` <span>${u}</span>` : ''}</dd></div>`).join('')}</dl>`;
+}
 
 const renderTable = t => t.mode === 'laps' ? lapTable(t) : t.mode === 'table' ? rawTable(t) : setTable(t);
 
@@ -990,8 +1078,9 @@ const body = (w, withRace) => {
     ${withRace && w.race ? `<p class="rcline"><b>대회</b>${esc(w.race)}</p>` : ''}
     <div class="blk">
       <h3><b>목요일</b><span>트랙 ${esc(t ? t.label : w.type)}</span></h3>
-      ${t ? renderTable(t) : '<p class="long">조별표 미정. 훈련 포맷 확정 후 반영한다.</p>'}
+      ${!t ? '<p class="long">조별표 미정. 훈련 포맷 확정 후 반영한다.</p>' : mine() >= 0 ? mineCard(t, mine()) : renderTable(t)}
       ${t && t.rules ? `<ul class="rules">${t.rules.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}
+      ${t && mine() >= 0 ? '<a class="allview" data-all="1" role="button" tabindex="0">전체 조 보기</a>' : ''}
     </div>
     <div class="blk">
       <h3><b>일요일</b><span>장거리</span></h3>
@@ -1001,13 +1090,23 @@ const body = (w, withRace) => {
 };
 
 // 이번 주
-el('now').innerHTML = `
+function drawNow() {
+  el('now').innerHTML = `
   <div class="hd">
     <span class="wk"><mark>${upcoming.n}</mark>주차</span>
     <span class="dt">${md(upcoming.thu)}(목) / ${md(upcoming.sun)}(일)</span>
     ${upcoming.race ? `<span class="rc"><b>${esc(upcoming.race)}</b></span>` : ''}
+    <div class="vt mini" role="group" aria-label="보기 범위">
+      <button type="button" data-m="all" aria-pressed="${mode === 'all'}">전체</button>
+      <button type="button" data-m="mine" aria-pressed="${mode === 'mine'}">내 조</button>
+    </div>
+  </div>
+  <div class="grp" role="group" aria-label="조 선택"${mode === 'mine' ? '' : ' hidden'}>
+    ${plan.groups.map((g, i) =>
+      `<button type="button" data-g="${i}" aria-pressed="${i === myIdx}">${esc(g.id.replace('조', ''))}</button>`).join('')}
   </div>
   ${body(upcoming)}`;
+}
 
 // 변속주 5단계
 el('steps').innerHTML = plan.progression.map((k, n) =>
@@ -1096,10 +1195,11 @@ if (location.hash === '#cal') {
 
 // 주차 상세 시트. 달력에서 훈련일을 누르면 열린다.
 const sheet = el('sheet'), scrim = el('scrim');
-let lastFocus = null;
+let lastFocus = null, sheetWeek = null;
 
 function openSheet(w) {
   lastFocus = document.activeElement;
+  sheetWeek = w;
   el('sheet-t').textContent = `${w.n}주차`;
   el('sheet-d').textContent = `${md(w.thu)}(목) / ${md(w.sun)}(일)`;
   el('sheet-bd').innerHTML = body(w, true);
@@ -1130,40 +1230,74 @@ scrim.addEventListener('click', closeSheet);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet(); });
 
 // 전체 일정
-el('weeks').innerHTML = plan.weeks.map(w => `
-  <details class="${w.sun < today ? 'done' : ''}">
-    <summary>
-      <b>${w.n}주차</b>
-      <span class="d">${md(w.thu)} / ${md(w.sun)}</span>
-      <span class="t">${esc(w.type)}</span>
-      ${w.race ? `<span class="rc">${esc(w.race)}</span>` : ''}
-      ${w === upcoming || w.draft ? `<span class="x">${w === upcoming ? '<i>이번 주</i> ' : ''}${w.draft ? '<u>추정</u>' : ''}</span>` : ''}
-    </summary>
-    <div class="body">${body(w, true)}</div>
-  </details>`).join('');
+function drawWeeks(openState) {
+  el('weeks').innerHTML = plan.weeks.map(w => `
+    <details class="${w.sun < today ? 'done' : ''}">
+      <summary>
+        <b>${w.n}주차</b>
+        <span class="d">${md(w.thu)} / ${md(w.sun)}</span>
+        <span class="t">${esc(w.type)}</span>
+        ${w.race ? `<span class="rc">${esc(w.race)}</span>` : ''}
+        ${w === upcoming || w.draft ? `<span class="x">${w === upcoming ? '<i>이번 주</i> ' : ''}${w.draft ? '<u>추정</u>' : ''}</span>` : ''}
+      </summary>
+      <div class="body">${body(w, true)}</div>
+    </details>`).join('');
 
-// 주차 아코디언 펼침 모션. details 는 높이 전환을 지원하지 않아 직접 애니메이션한다.
-const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-document.querySelectorAll('#weeks details').forEach(d => {
-  const sum = d.querySelector('summary');
-  let anim = null;
-  sum.addEventListener('click', e => {
-    if (reduce.matches) return;                  // 모션 최소화 설정이면 기본 동작
-    e.preventDefault();
-    if (anim) anim.cancel();
-    const from = d.offsetHeight;
-    const opening = !d.open;
-    if (opening) d.open = true;                  // 열어야 전체 높이를 잴 수 있다
-    const to = opening ? d.scrollHeight : sum.offsetHeight;
-    d.style.overflow = 'hidden';
-    anim = d.animate({ height: [from + 'px', to + 'px'] },
-      { duration: 200, easing: 'cubic-bezier(.2,.8,.2,1)' });
-    anim.onfinish = () => {
-      anim = null;
-      d.style.overflow = '';
-      if (!opening) d.open = false;
-    };
+  const items = [...el('weeks').querySelectorAll('details')];
+  if (openState) items.forEach((d, i) => { d.open = !!openState[i]; });
+
+  // details 는 높이 전환을 지원하지 않아 직접 애니메이션한다.
+  items.forEach(d => {
+    const sum = d.querySelector('summary');
+    let anim = null;
+    sum.addEventListener('click', e => {
+      if (reduce.matches) return;
+      e.preventDefault();
+      if (anim) anim.cancel();
+      const from = d.offsetHeight;
+      const opening = !d.open;
+      if (opening) d.open = true;
+      const to = opening ? d.scrollHeight : sum.offsetHeight;
+      d.style.overflow = 'hidden';
+      anim = d.animate({ height: [from + 'px', to + 'px'] },
+        { duration: 200, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      anim.onfinish = () => { anim = null; d.style.overflow = ''; if (!opening) d.open = false; };
+    });
   });
+}
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+function renderAll() {
+  const open = [...el('weeks').querySelectorAll('details')].map(d => d.open);
+  drawFacts(); drawBase(); drawNow(); drawWeeks(open.length ? open : null);
+  if (sheet.classList.contains('open') && sheetWeek) el('sheet-bd').innerHTML = body(sheetWeek, true);
+}
+renderAll();
+
+// 보기 모드 컨트롤
+el('now').addEventListener('click', e => {
+  const m = e.target.closest('[data-m]');
+  if (m) {
+    mode = m.dataset.m;
+    if (mode === 'mine' && myIdx < 0) myIdx = 0;
+    store.set(MK, mode);
+    store.set(GK, myIdx >= 0 ? plan.groups[myIdx].id : null);
+    return renderAll();
+  }
+  const g = e.target.closest('[data-g]');
+  if (g) {
+    myIdx = Number(g.dataset.g);
+    mode = 'mine';
+    store.set(GK, plan.groups[myIdx].id);
+    store.set(MK, mode);
+    return renderAll();
+  }
+});
+
+// 카드 안의 "전체 조 보기"
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-all]')) { mode = 'all'; store.set(MK, mode); renderAll(); }
 });
 
 </script>
