@@ -185,6 +185,32 @@ table.cal tbody tr:last-child td{border-bottom:1px solid #000}
 .callegend em.l{background:var(--acc-soft)}
 .callegend em.r{background:#000}
 
+/* ---- 주차 상세 시트 ---- */
+[hidden]{display:none!important}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:40}
+.sheet{position:fixed;z-index:41;background:var(--paper);overflow-y:auto;
+ -webkit-overflow-scrolling:touch;top:0;right:0;bottom:0;width:min(640px,94vw);
+ border-left:2px solid #000}
+.sheet-hd{position:sticky;top:0;z-index:1;background:var(--paper);display:flex;
+ align-items:baseline;gap:14px;padding:20px 24px 11px;border-bottom:1px solid #000}
+.sheet-hd h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.025em}
+.sheet-hd .wd{font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums}
+.sheet-hd button{margin-left:auto;appearance:none;background:none;border:0;font:inherit;
+ font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#000;
+ cursor:pointer;border-bottom:2px solid var(--acc);padding:0 0 2px;align-self:center}
+.sheet-hd button:hover{background:var(--acc)}
+.sheet-bd{padding:18px 24px 64px}
+.sheet-bd .blk:first-child{margin-top:0}
+.daybtn{appearance:none;background:none;border:0;padding:0;margin:0;font:inherit;
+ display:block;width:100%;text-align:left;cursor:pointer}
+.daybtn:focus-visible{outline:2px solid #000;outline-offset:2px}
+@media (max-width:860px){
+  .sheet{top:auto;left:0;right:0;bottom:0;width:auto;max-height:86vh;
+   border-left:0;border-top:2px solid #000}
+  .sheet-hd{padding:16px 18px 10px}
+  .sheet-bd{padding:16px 18px 44px}
+}
+
 /* ---- 오픈채팅 ---- */
 .info{border-top:1px solid #000;font-size:13px}
 .info div{display:flex;gap:16px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--hair)}
@@ -229,7 +255,7 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
   details:not([open]) .body{display:none!important}
   table{min-width:0;font-size:10px}
   .scroller{overflow:visible}
-  a.go{display:none}
+  a.go,.sheet,.scrim,.vt{display:none!important}
 }
 </style>
 </head>
@@ -242,7 +268,7 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
     <span class="r" id="ebr"></span>
   </div>
   <h1>G-<em>LAB</em></h1>
-  <p class="sub">구파발 러닝랩. 목요일 트랙 인터벌과 일요일 장거리를 조별로 처방한다.</p>
+  <p class="sub">구파발천 러닝크루의 훈련팀 G-LAB 훈련표입니다.<br>목요일 - 트랙 인터벌 / 일요일 - 장거리</p>
   <dl class="facts" id="facts"></dl>
 </div>
 
@@ -279,7 +305,6 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
     <div id="weeks"></div>
   </div>
   <div data-view="cal" hidden>
-    <p class="lede">목요일은 트랙, 일요일은 장거리다. 좁은 화면에서는 막대로만 표시된다.</p>
     <div id="cal"></div>
     <div class="callegend">
       <span><em class="t"></em>목요일 트랙</span>
@@ -301,6 +326,15 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
 
 <footer><span id="f1"></span><span id="f2"></span></footer>
 </div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheet-t">
+  <div class="sheet-hd">
+    <h3 id="sheet-t"></h3><span class="wd" id="sheet-d"></span>
+    <button type="button" id="sheet-x">닫기</button>
+  </div>
+  <div class="sheet-bd" id="sheet-bd"></div>
+</aside>
 
 <script>
 // 조별표 산출 엔진.
@@ -991,8 +1025,10 @@ function month(y, m) {                       // m 은 1~12
     const cls = [k && k.w === upcoming ? 'on' : '', iso < today ? 'past' : ''].filter(Boolean).join(' ');
     let inner = `<b>${d}</b>`;
     if (k) {
-      inner += `<i class="${k.kind}" title="${k.w.n}주차 ${esc(k.label)}"><u>${k.w.n}w</u>${esc(k.label)}</i>`;
+      inner += `<i class="${k.kind}"><u>${k.w.n}w</u>${esc(k.label)}</i>`;
       if (k.kind === 'l' && k.w.race) inner += `<i class="r" title="${esc(k.w.race)}">${esc(k.w.race)}</i>`;
+      inner = `<button type="button" class="daybtn" data-w="${k.w.n}"
+        aria-label="${k.w.n}주차 훈련표 열기">${inner}</button>`;
     }
     cells.push(`<td class="${cls}">${inner}</td>`);
   }
@@ -1030,6 +1066,35 @@ if (location.hash === '#cal') {
   setView('cal');
   document.getElementById('schedule').scrollIntoView();
 }
+
+// 주차 상세 시트. 달력에서 훈련일을 누르면 열린다.
+const sheet = el('sheet'), scrim = el('scrim');
+let lastFocus = null;
+
+function openSheet(w) {
+  lastFocus = document.activeElement;
+  el('sheet-t').textContent = `${w.n}주차`;
+  el('sheet-d').textContent = `${md(w.thu)}(목) / ${md(w.sun)}(일)`;
+  el('sheet-bd').innerHTML = body(w, true);
+  sheet.hidden = scrim.hidden = false;
+  document.body.style.overflow = 'hidden';
+  sheet.scrollTop = 0;
+  el('sheet-x').focus();
+}
+
+function closeSheet() {
+  sheet.hidden = scrim.hidden = true;
+  document.body.style.overflow = '';
+  if (lastFocus) lastFocus.focus();
+}
+
+el('cal').addEventListener('click', e => {
+  const btn = e.target.closest('.daybtn');
+  if (btn) openSheet(plan.weeks.find(w => w.n === Number(btn.dataset.w)));
+});
+el('sheet-x').addEventListener('click', closeSheet);
+scrim.addEventListener('click', closeSheet);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !sheet.hidden) closeSheet(); });
 
 // 전체 일정
 el('weeks').innerHTML = plan.weeks.map(w => `
