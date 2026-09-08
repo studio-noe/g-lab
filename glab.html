@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>G-LAB 훈련표 / GSRC 구파발 러닝랩</title>
+<meta name="description" content="GSRC 훈련팀 G-LAB(구파발 러닝랩) 조별 훈련표. 주차별 인터벌 처방과 조별 기준 페이스.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="G-LAB 훈련표">
+<meta property="og:description" content="GSRC 훈련팀 G-LAB. 주차별 조별 훈련표.">
+<meta property="og:image" content="https://studio-noe.github.io/g-lab/og.png">
+<meta property="og:url" content="https://studio-noe.github.io/g-lab/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+/* ---------------------------------------------------------------------------
+   신문 조판. 상자가 아니라 선으로 구조를 만든다. DESIGN.md 참조.
+   선 3단계 : 2px 검정(최상위) / 1px 검정(섹션, 표머리) / 1px hair(행)
+   앰버는 절대 글자색이 아니다. 검은 글자 뒤에 깔리는 채움으로만 쓴다.
+   반경 0, 그림자 0, 모션 0.
+--------------------------------------------------------------------------- */
+:root{
+  --ink:#000; --paper:#fff; --dim:#767676; --hair:#dcdcdc;
+  --acc:#ffc800;            /* 형광펜. 검정 글자와 13.0:1 */
+  --g:minmax(0,1fr);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+ font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Helvetica Neue",Arial,sans-serif;
+ font-size:15px;line-height:1.5;font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px 96px}
+a{color:inherit}
+:focus-visible{outline:2px solid #000;outline-offset:2px}
+
+/* ---- 마스트헤드 ---- */
+.mast{padding:40px 0 0}
+.eyebrow{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;
+ font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+ padding-bottom:10px;border-bottom:2px solid #000}
+.eyebrow .r{justify-self:end;text-transform:none;letter-spacing:.02em;color:var(--dim);white-space:nowrap}
+h1{margin:22px 0 0;font-size:clamp(48px,10vw,120px);line-height:.86;letter-spacing:-.045em;font-weight:800}
+h1 em{font-style:normal;background:var(--acc);padding:0 .06em}
+.sub{margin:16px 0 0;font-size:clamp(15px,2vw,19px);font-weight:500;letter-spacing:-.01em;max-width:56ch}
+
+/* ---- 요약 수치 ---- */
+.facts{display:grid;grid-template-columns:repeat(4,var(--g));margin:34px 0 0;
+ border-top:1px solid #000;border-bottom:1px solid #000}
+.fact{padding:26px 26px 30px;border-right:1px solid var(--hair);min-width:0}
+.fact:first-child{padding-left:0}
+.fact:last-child{border-right:0;padding-right:0}
+.fact dt{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);line-height:1.3}
+.fact dd{margin:13px 0 0;font-size:clamp(22px,3.4vw,34px);font-weight:700;letter-spacing:-.035em;line-height:1}
+.fact dd s{text-decoration:none;font-size:.42em;font-weight:500;letter-spacing:0;margin-left:.3em;color:var(--dim)}
+.fact dd mark{background:var(--acc);color:#000;padding:0 .12em}
+
+/* ---- 섹션 ---- */
+section{margin:58px 0 0}
+.shead{display:flex;gap:14px;align-items:baseline;border-bottom:1px solid #000;
+ padding-bottom:8px;margin-bottom:20px}
+.shead h2{margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em}
+.shead span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-left:auto;
+ white-space:nowrap}
+.lede{margin:-8px 0 18px;font-size:13px;color:var(--dim);max-width:74ch}
+
+/* ---- 표 ---- */
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:700px}
+th{text-align:right;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+ font-weight:600;padding:0 0 8px 14px;border-bottom:1px solid #000;white-space:nowrap;vertical-align:bottom}
+th:first-child{text-align:left;padding-left:0}
+td{padding:11px 0 11px 14px;border-bottom:1px solid var(--hair);white-space:nowrap;
+ text-align:right;font-variant-numeric:tabular-nums}
+td:first-child{padding-left:0;text-align:left;font-weight:800;letter-spacing:-.01em}
+td.pl{text-align:left;font-weight:500;color:var(--dim);white-space:normal}
+td b{font-weight:700}
+td s{text-decoration:none;display:block;font-size:11px;color:var(--dim);font-weight:400;
+ letter-spacing:0;margin-top:2px}
+tbody tr:last-child td{border-bottom:1px solid #000}
+/* 가로 스크롤 시 조 열을 왼쪽에 고정한다. 달력 표(.cal)는 스크롤이 없어 해당 없음. */
+.scroller th:first-child,
+.scroller td:first-child{position:sticky;left:0;z-index:1;background:var(--paper);
+ padding-right:14px;border-right:1px solid var(--hair)}
+.scroller thead th:first-child{z-index:2}
+.scroller tbody tr:last-child td:first-child{border-right:1px solid var(--hair)}
+
+.src{font-size:10.5px;color:var(--dim);padding:8px 0 0}
+
+/* ---- 진행 사슬 ---- */
+ol.chain{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 0;align-items:center}
+ol.chain li{font-size:13px;color:var(--dim)}
+ol.chain li span{display:inline-block;padding:5px 0}
+ol.chain li:not(:last-child)::after{content:"→";margin:0 10px;color:#c4c4c4}
+ol.chain li.on{color:#000}
+ol.chain li.on span{background:var(--acc);color:#000;font-weight:800;padding:5px 9px}
+ol.chain li b{font-weight:700;margin-right:3px}
+
+/* ---- 주석 ---- */
+.note{border-left:3px solid var(--acc);padding:2px 0 2px 16px;margin:22px 0 0;
+ font-size:13.5px;color:#333;max-width:74ch}
+.note b{font-weight:700;color:#000}
+.note.warn{border-left-color:#000}
+
+/* ---- 이번 주 ---- */
+.now{border-top:1px solid #000;border-bottom:2px solid #000;padding:20px 0 22px}
+.now .hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.now .wk{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.035em;line-height:1}
+.now .wk mark{background:var(--acc);color:#000;padding:0 .1em}
+.now .dt{font-size:14px;font-weight:600;color:var(--dim);font-variant-numeric:tabular-nums}
+.now .rc{font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-left:auto}
+.now .rc b{background:var(--acc);padding:3px 8px;font-weight:700;letter-spacing:.06em}
+.blk{margin-top:22px}
+.blk h3{margin:0 0 10px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.blk h3 b{background:var(--acc);padding:2px 7px;font-weight:800}
+.blk h3 span{font-weight:500;letter-spacing:0;text-transform:none;color:var(--dim);margin-left:8px;font-size:12.5px}
+.long{font-size:14px;font-weight:500}
+ul.rules{margin:12px 0 0;padding-left:16px;color:var(--dim);font-size:12.5px;max-width:74ch}
+ul.rules li{margin-bottom:3px}
+
+/* ---- 전체 일정 ---- */
+details{border-bottom:1px solid var(--hair)}
+details[open]{border-bottom:1px solid #000}
+summary{display:grid;grid-template-columns:76px 120px 1fr auto;gap:14px;align-items:baseline;
+ padding:11px 0;cursor:pointer;font-size:13px;font-variant-numeric:tabular-nums}
+summary::-webkit-details-marker{display:none}
+summary::marker{content:""}
+summary b{font-weight:800;letter-spacing:-.01em;font-size:14px}
+summary .d{color:var(--dim)}
+summary .t{font-weight:600}
+summary .x{justify-self:end;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+ text-align:right;white-space:nowrap}
+summary .x i{font-style:normal;background:var(--acc);color:#000;padding:2px 7px;font-weight:700;letter-spacing:.06em}
+summary .x u{text-decoration:none;border:1px solid var(--dim);padding:1px 6px}
+details.done summary{color:var(--dim)}
+details.done summary b{font-weight:600}
+details .body{padding:6px 0 26px}
+
+/* ---- 뷰 토글 ---- */
+.vt{display:flex;border:1px solid #000;width:max-content;margin:0 0 22px}
+.vt button{appearance:none;background:none;border:0;font:inherit;font-weight:700;font-size:12px;
+ letter-spacing:.02em;padding:7px 16px;cursor:pointer;color:var(--dim)}
+.vt button+button{border-left:1px solid #000}
+.vt button[aria-pressed="true"]{background:var(--acc);color:#000}
+[data-view][hidden]{display:none}
+
+/* ---- 달력 ---- */
+.mo{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid #000;
+ padding-bottom:7px;margin:30px 0 0}
+.mo:first-child{margin-top:0}
+.mo h3{margin:0;font-size:15px;font-weight:800;letter-spacing:-.02em}
+.mo span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-left:auto}
+table.cal{min-width:0;table-layout:fixed;margin-bottom:2px}
+table.cal th{text-align:center;padding:7px 0;font-size:9.5px;letter-spacing:.1em;border-bottom:1px solid var(--hair)}
+table.cal th:first-child{text-align:center;padding-left:0;color:#000}
+table.cal th:last-child{color:#000}
+table.cal td{text-align:left;vertical-align:top;padding:6px 6px 9px;height:62px;
+ border-bottom:1px solid var(--hair);border-right:1px solid var(--hair);white-space:normal}
+table.cal td:first-child{padding-left:6px;font-weight:400}
+table.cal td:last-child{border-right:0}
+table.cal tbody tr:last-child td{border-bottom:1px solid #000}
+.cal b{font-size:11.5px;font-weight:600;color:var(--dim);font-variant-numeric:tabular-nums}
+.cal td.on b{background:#000;color:#fff;padding:1px 5px;font-weight:700}
+.cal td.past{background:#fafafa}
+.cal td.past b{color:#b4b4b4}
+.cal i{display:block;margin-top:5px;font-style:normal;font-size:9.5px;font-weight:700;
+ letter-spacing:-.01em;padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal i.t{background:var(--acc);color:#000}
+.cal i.l{border:1px solid #000}
+.cal i.r{background:#000;color:#fff;font-weight:600}
+.cal td.past i.t{background:#f0dfae}
+.cal td.past i.l{border-color:#c4c4c4;color:var(--dim)}
+.callegend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:11px;color:var(--dim);padding:12px 0 0}
+.callegend span{display:inline-flex;align-items:center;gap:6px}
+.callegend em{font-style:normal;width:16px;height:10px;display:inline-block}
+.callegend em.t{background:var(--acc)}
+.callegend em.l{border:1px solid #000}
+.callegend em.r{background:#000}
+
+/* ---- 오픈채팅 ---- */
+.info{border-top:1px solid #000;font-size:13px}
+.info div{display:flex;gap:16px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--hair)}
+.info dt{flex:0 0 88px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);line-height:1.7}
+.info dd{margin:0;font-weight:500;letter-spacing:-.01em}
+.info dd b{font-weight:800;font-size:15px}
+a.go{display:inline-flex;align-items:center;gap:10px;margin-top:20px;font-size:15px;font-weight:700;
+ text-decoration:none;border-bottom:2px solid var(--acc);padding-bottom:3px}
+a.go:hover{background:var(--acc)}
+
+footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5px;color:var(--dim);
+ display:flex;flex-wrap:wrap;gap:6px 28px;justify-content:space-between}
+
+@media (max-width:860px){
+  .wrap{padding:0 18px 64px}
+  .facts{grid-template-columns:repeat(2,var(--g))}
+  .fact{padding:22px 22px 24px;border-bottom:1px solid var(--hair)}
+  .fact:nth-child(2n+1){padding-left:0}
+  .fact:nth-child(2n){border-right:0;padding-right:0}
+  .fact:nth-last-child(-n+2){border-bottom:0}
+  summary{grid-template-columns:64px 1fr;gap:4px 12px}
+  summary .t{grid-column:2;grid-row:2}
+  summary .x{grid-column:2;grid-row:3;justify-self:start;text-align:left}
+  summary b{grid-row:1}
+  summary .d{grid-row:1}
+}
+@media (max-width:600px){
+  table.cal td{height:52px;padding:5px 3px 7px}
+  .cal i{height:5px;padding:0;font-size:0;margin-top:5px}
+  .cal i.l{height:5px}
+}
+@media (max-width:430px){
+  .eyebrow{font-size:10px;letter-spacing:.12em}
+  .eyebrow .r{display:none}
+}
+@media print{
+  .wrap{max-width:none;padding:0}
+  .scroller th:first-child,.scroller td:first-child{position:static}
+  details[open],details{border-bottom:1px solid #999}
+  details .body{display:block!important}
+  details:not([open]) .body{display:none!important}
+  table{min-width:0;font-size:10px}
+  .scroller{overflow:visible}
+  a.go{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="mast">
+  <div class="eyebrow">
+    <span id="eb"></span>
+    <span class="r" id="ebr"></span>
+  </div>
+  <h1>G-<em>LAB</em></h1>
+  <p class="sub">구파발 러닝랩. 목요일 트랙 인터벌과 일요일 장거리를 조별로 처방한다.</p>
+  <dl class="facts" id="facts"></dl>
+</div>
+
+<section id="this-week">
+  <div class="shead"><h2>이번 주 훈련</h2><span id="stage-label"></span></div>
+  <div class="now" id="now"></div>
+</section>
+
+<section id="pace">
+  <div class="shead"><h2>조별 기준 페이스</h2><span>400m 랩 / km 페이스</span></div>
+  <p class="lede">조 배정은 10km 기록으로 한다. 애매하면 아래 조에서 시작해 올라오는 편이 낫다. I(인터벌)가 기준이고 나머지 존은 여기서 계산된다.</p>
+  <div class="scroller"><table id="base"></table></div>
+</section>
+
+<section id="plan">
+  <div class="shead"><h2>변속주 5단계</h2><span>시즌 진행</span></div>
+  <ol class="chain" id="steps"></ol>
+  <p class="note">짧고 빠른 것에서 길고 레이스 페이스에 가까운 것으로 간다. 마지막 2주는 테이퍼링이다.</p>
+</section>
+
+<section id="routine">
+  <div class="shead"><h2>훈련 공통 순서</h2><span>매 세션</span></div>
+  <ol class="chain" id="routine-list"></ol>
+</section>
+
+<section id="schedule">
+  <div class="shead"><h2>전체 일정</h2><span id="sched-label"></span></div>
+  <div class="vt" role="group" aria-label="보기 방식">
+    <button type="button" data-v="list" aria-pressed="true">주차별</button>
+    <button type="button" data-v="cal" aria-pressed="false">달력</button>
+  </div>
+  <div data-view="list">
+    <p class="lede">주차를 눌러 조별표를 펼친다.</p>
+    <div id="weeks"></div>
+  </div>
+  <div data-view="cal" hidden>
+    <p class="lede">목요일은 트랙, 일요일은 장거리다. 좁은 화면에서는 막대로만 표시된다.</p>
+    <div id="cal"></div>
+    <div class="callegend">
+      <span><em class="t"></em>목요일 트랙</span>
+      <span><em class="l"></em>일요일 장거리</span>
+      <span><em class="r"></em>대회</span>
+    </div>
+  </div>
+</section>
+
+<section id="chat">
+  <div class="shead"><h2>오픈채팅방</h2><span>공지 전용</span></div>
+  <dl class="info">
+    <div><dt>비밀번호</dt><dd><b id="pw"></b></dd></div>
+    <div><dt>운영</dt><dd>공지 확인 전용입니다. 사담은 삼가주세요.</dd></div>
+    <div><dt>닉네임</dt><dd>실명으로 설정 (예: 이재형)</dd></div>
+  </dl>
+  <a class="go" id="chatlink" href="#">오픈채팅방 입장</a>
+</section>
+
+<footer><span id="f1"></span><span id="f2"></span></footer>
+</div>
+
+<script>
+// 조별표 산출 엔진.
+// 조마다 기준 랩타임(400m, 초) 하나만 있으면 나머지 강도는 오프셋으로 전부 나온다.
+// float(+10)과 후반 가속(-2)은 2026-09-17 G-LAB 별무리 자료에서 역산한 확정값이다.
+
+const pace = lap => {
+  const s = Math.round(lap * 2.5);            // 400m 랩 -> km 페이스
+  return `${Math.floor(s / 60)}'${String(s % 60).padStart(2, '0')}"`;
+};
+
+const clock = sec => {
+  const s = Math.round(sec);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+
+const zones = (group, offsets) =>
+  Object.fromEntries(Object.entries(offsets).map(([k, v]) => [k, group.lap + v]));
+
+// 세트형: 질주 N회 + 회복 N-1회 (마지막 회복 생략)
+function sets(group, i, type, offsets) {
+  const rep = group.lap + offsets[type.zone] + (type.repAdd || 0);
+  const rec = group.lap + type.recAdd;
+  const n = type.sets[i];
+  const metres = n * (type.rep + type.rec) - type.rec;
+
+  return {
+    rep, rec, sets: n, metres,
+    time: n * (rep * type.rep / 400 + rec * type.rec / 400) - rec * type.rec / 400,
+  };
+}
+
+// 바퀴형(파틀렉): 총 바퀴수를 주고 분할 지점부터 질주를 backFaster초 빠르게.
+// 800+800이므로 한 블록 = 4바퀴(질주 2 + 회복 2), 마지막 회복은 생략한다.
+function laps(group, i, type) {
+  const total = type.laps[i], split = type.split[i];
+  const front = group.lap, back = front - type.backFaster, rec = group.lap + type.recAdd;
+
+  const reps = Math.ceil(total / 4), recs = Math.floor(total / 4);
+  const fReps = Math.ceil(split / 4), fRecs = Math.floor(split / 4);
+  const bReps = reps - fReps, bRecs = recs - fRecs;
+
+  return {
+    rep: front, back, rec, reps, recs, fReps, bReps, split,
+    metres: total * 400,
+    time: (fReps * front + bReps * back + recs * rec) * 2,   // 800m = 랩 x 2
+  };
+}
+
+// 표형: 크루가 실제로 배포한 표를 그대로 쓴다. 회복은 페이스가 아니라 시간으로 주어진다.
+function table(i, type) {
+  const rep = type.reps[i], rec = type.recSec[i], n = type.sets[i];
+  return {
+    rep, rec, sets: n, recIsTime: true,
+    last: type.last ? type.last[i] : '',
+    metres: n * type.rep + (n - 1) * type.rec,
+    time: type.time ? type.time[i] * 60 : n * rep * type.rep / 400 + (n - 1) * rec,
+  };
+}
+
+function session(group, i, type, offsets) {
+  const r = type.mode === 'laps' ? laps(group, i, type)
+          : type.mode === 'table' ? table(i, type)
+          : sets(group, i, type, offsets);
+  return {
+    ...r,
+    repPace: pace(r.rep),
+    recPace: pace(r.recIsTime ? r.rec * 400 / type.rec : r.rec),
+    backPace: r.back ? pace(r.back) : null,
+    repTime: clock(r.rep * type.rep / 400),
+    // 표형은 회복이 통째로 초 단위, 나머지는 랩타임 x 거리
+    recTime: clock(r.recIsTime ? r.rec : r.rec * type.rec / 400),
+    recPaceLap: r.recIsTime ? Math.round(r.rec * 400 / type.rec) : r.rec,
+    km: Math.round(r.metres / 100) / 10,
+    laps: r.metres / 400,
+    total: clock(r.time),
+  };
+}
+
+
+
+const el = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+const md = d => { const [, m, day] = d.split('-'); return `${+m}/${+day}`; };
+const ZONE = { R:'R 반복', I:'I 인터벌', T:'T 역치', M:'M 마라톤', float:'회복', E:'E 조깅' };
+const cell = (big, small) => `<td><b>${big}</b>${small ? `<s>${small}</s>` : ''}</td>`;
+
+const plan = {
+  "season": {
+    "name": "2026 여름 시즌",
+    "race": "JTBC 서울마라톤",
+    "raceDate": "2026-11-01",
+    "totalWeeks": 19,
+    "note": "여름 7/1~11월 초 (19주) / 겨울 12/1~3월 중순 동마 (16주) / 마지막 2주 테이퍼링"
+  },
+  "_comment_groups": "tenK = 조 배정 기준 10km 기록. lap = 800m 질주 시 400m 랩타임(초), 9/17 G-LAB 별무리 자료 실측값. lap 하나만 고치면 그 조의 모든 페이스가 따라 움직인다.",
+  "groups": [
+    {
+      "id": "S조",
+      "goal": "2:49~ (특조)",
+      "tenK": "37분 이내",
+      "lap": 90
+    },
+    {
+      "id": "1조",
+      "goal": "sub3",
+      "tenK": "39분 이내",
+      "lap": 94
+    },
+    {
+      "id": "2조",
+      "goal": "싱글",
+      "tenK": "42분 이내",
+      "lap": 98
+    },
+    {
+      "id": "3조",
+      "goal": "3:30",
+      "tenK": "44분 이내",
+      "lap": 102
+    },
+    {
+      "id": "4조",
+      "goal": "3:30~3:40",
+      "tenK": "46분 이내",
+      "lap": 107
+    },
+    {
+      "id": "5조",
+      "goal": "3:50~섭4",
+      "tenK": "48분 이내",
+      "lap": 112
+    },
+    {
+      "id": "6조",
+      "goal": "4:00~4:30",
+      "tenK": "56분 이내",
+      "lap": 132
+    },
+    {
+      "id": "7조",
+      "goal": "그 이상",
+      "tenK": "57~65분",
+      "lap": 145
+    }
+  ],
+  "_comment_offsets": "기준 랩(I)에 더할 초/400m. float(+10)와 후반 가속(-2)은 9/17 별무리 자료에서 역산한 확정값. 나머지는 추정치.",
+  "offsets": {
+    "R": -5,
+    "I": 0,
+    "T": 5,
+    "M": 8,
+    "float": 10,
+    "E": 22
+  },
+  "types": {
+    "파틀렉": {
+      "label": "변속 파틀렉 (800m + 800m, 바퀴형)",
+      "mode": "laps",
+      "rep": 800,
+      "rec": 800,
+      "recAdd": 10,
+      "backFaster": 2,
+      "laps": [
+        38,
+        34,
+        34,
+        34,
+        30,
+        30,
+        26,
+        22
+      ],
+      "split": [
+        24,
+        20,
+        20,
+        20,
+        20,
+        20,
+        16,
+        12
+      ],
+      "rules": [
+        "질주 800m + 회복주 800m 반복. 마지막 세트의 회복주 800m는 모든 조 생략",
+        "분할 지점부터 질주 랩을 2초 빠르게",
+        "힘든 사람은 중간에 회복주 1회 정도 쉬면서 동반주",
+        "많이 더우면 중간휴식 2분을 넣고 회복주 2바퀴를 생략"
+      ],
+      "stage": "800+800"
+    },
+    "800+800": {
+      "label": "800m + 800m 변속주 (세트형)",
+      "mode": "sets",
+      "rep": 800,
+      "rec": 800,
+      "zone": "I",
+      "recAdd": 10,
+      "sets": [
+        8,
+        8,
+        7,
+        7,
+        6,
+        6,
+        5,
+        5
+      ],
+      "rules": [
+        "후반 절반은 질주 랩을 2초 빠르게",
+        "마지막 세트의 회복주 800m는 모든 조 생략"
+      ],
+      "stage": "800+800"
+    },
+    "800+400": {
+      "label": "800m + 400m 변속주",
+      "mode": "sets",
+      "rep": 800,
+      "rec": 400,
+      "zone": "I",
+      "repAdd": 2,
+      "recAdd": 14,
+      "sets": [
+        8,
+        8,
+        7,
+        7,
+        6,
+        6,
+        5,
+        5
+      ],
+      "rules": [
+        "회복이 절반이라 질주를 2초 느슨하게 잡음",
+        "마지막 세트의 회복주는 생략"
+      ],
+      "stage": "800+400"
+    },
+    "2000+400": {
+      "label": "2000m + 400m 인터벌",
+      "mode": "table",
+      "stage": "2000+400",
+      "rep": 2000,
+      "rec": 400,
+      "source": "2026-02-12 PAC5기 반포 훈련",
+      "basis": "10km 34~62분 (조당 4분)",
+      "reps": [
+        84,
+        92,
+        100,
+        108,
+        116,
+        124,
+        132,
+        140
+      ],
+      "recSec": [
+        150,
+        160,
+        170,
+        180,
+        190,
+        200,
+        210,
+        220
+      ],
+      "sets": [
+        6,
+        5,
+        5,
+        5,
+        4,
+        4,
+        3,
+        3
+      ],
+      "time": [
+        59,
+        57,
+        53,
+        57,
+        54,
+        57,
+        53,
+        56
+      ],
+      "rules": [
+        "질주는 조마다 8초씩, 회복은 10초씩 등차로 벌어진다",
+        "1세트는 2~3초 느리게 뛰어도 괜찮다"
+      ]
+    },
+    "3000+600": {
+      "label": "3000m + 600m 인터벌",
+      "mode": "table",
+      "stage": "3000+600",
+      "rep": 3000,
+      "rec": 600,
+      "source": "2026-02-26 PAC5기 연대 훈련",
+      "basis": "10km 34~62분 (조당 4분)",
+      "reps": [
+        86,
+        96,
+        106,
+        116,
+        126,
+        136,
+        146,
+        156
+      ],
+      "recSec": [
+        210,
+        240,
+        270,
+        300,
+        330,
+        360,
+        390,
+        420
+      ],
+      "sets": [
+        4,
+        4,
+        4,
+        3,
+        3,
+        3,
+        3,
+        2
+      ],
+      "last": [
+        "",
+        "2000m",
+        "1000m",
+        "",
+        "2000m",
+        "1000m",
+        "800m",
+        ""
+      ],
+      "time": [
+        54,
+        56,
+        53,
+        54,
+        53,
+        45,
+        45,
+        46
+      ],
+      "rules": [
+        "질주는 조마다 10초씩, 회복은 30초씩 등차로 벌어진다",
+        "조에 따라 마지막 세트를 짧게 끊는다"
+      ]
+    },
+    "400+400": {
+      "label": "400m + 400m 변속주",
+      "mode": "sets",
+      "stage": "400+400",
+      "rep": 400,
+      "rec": 400,
+      "zone": "I",
+      "repAdd": -2,
+      "recAdd": 12,
+      "sets": [
+        18,
+        17,
+        16,
+        16,
+        15,
+        15,
+        13,
+        12
+      ],
+      "rules": [
+        "구간이 짧으니 질주를 2초 빠르게 잡음",
+        "마지막 세트의 회복주는 생략",
+        "시즌 첫 단계. 속도보다 리듬을 익히는 게 목적"
+      ]
+    }
+  },
+  "_comment_weeks": "draft:true 는 원본 자료가 없어 진행 순서로 배치한 추정치다. 확정되면 draft 지우면 된다.",
+  "weeks": [
+    {
+      "n": 1,
+      "thu": "2026-06-25",
+      "sun": "2026-06-28",
+      "race": "",
+      "type": "400+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 2,
+      "thu": "2026-07-02",
+      "sun": "2026-07-05",
+      "race": "",
+      "type": "400+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 3,
+      "thu": "2026-07-09",
+      "sun": "2026-07-12",
+      "race": "",
+      "type": "400+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 4,
+      "thu": "2026-07-16",
+      "sun": "2026-07-19",
+      "race": "",
+      "type": "400+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 5,
+      "thu": "2026-07-23",
+      "sun": "2026-07-26",
+      "race": "",
+      "type": "400+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 6,
+      "thu": "2026-07-30",
+      "sun": "2026-08-02",
+      "race": "",
+      "type": "800+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 7,
+      "thu": "2026-08-06",
+      "sun": "2026-08-09",
+      "race": "",
+      "type": "800+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 8,
+      "thu": "2026-08-13",
+      "sun": "2026-08-16",
+      "race": "",
+      "type": "800+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 9,
+      "thu": "2026-08-20",
+      "sun": "2026-08-23",
+      "race": "",
+      "type": "800+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 10,
+      "thu": "2026-08-27",
+      "sun": "2026-08-30",
+      "race": "",
+      "type": "800+400",
+      "long": "미정",
+      "draft": true
+    },
+    {
+      "n": 11,
+      "thu": "2026-09-03",
+      "sun": "2026-09-06",
+      "race": "철원 DMZ YTN 마라톤",
+      "type": "800+400",
+      "long": "여의도공원 빌드업"
+    },
+    {
+      "n": 12,
+      "thu": "2026-09-10",
+      "sun": "2026-09-13",
+      "race": "",
+      "type": "파틀렉",
+      "long": "남산 / 국평마 테이퍼링"
+    },
+    {
+      "n": 13,
+      "thu": "2026-09-17",
+      "sun": "2026-09-20",
+      "race": "공주 백제",
+      "type": "파틀렉",
+      "long": "여의도공원 (상암 x)"
+    },
+    {
+      "n": 14,
+      "thu": "2026-09-24",
+      "sun": "2026-09-27",
+      "race": "",
+      "type": "800+800",
+      "long": "경주마 테이퍼링 시작 / 여의도공원"
+    },
+    {
+      "n": 15,
+      "thu": "2026-10-01",
+      "sun": "2026-10-04",
+      "race": "서산 코스모 / 파주 북시티 / 강남 국평마(6일)",
+      "type": "800+800",
+      "long": "춘마 테이퍼링 시작 (상암 x)"
+    },
+    {
+      "n": 16,
+      "thu": "2026-10-08",
+      "sun": "2026-10-11",
+      "race": "MBN 나주",
+      "type": "2000+400",
+      "long": "제마 3주 테이퍼링 시작 / 실전훈련 전원 35k / 여의도 or 트랙, 급수연습 포함"
+    },
+    {
+      "n": 17,
+      "thu": "2026-10-15",
+      "sun": "2026-10-18",
+      "race": "경주마",
+      "type": "3000+600",
+      "long": "하프주"
+    },
+    {
+      "n": 18,
+      "thu": "2026-10-22",
+      "sun": "2026-10-25",
+      "race": "춘천마",
+      "type": "3000+600",
+      "long": "10k주"
+    },
+    {
+      "n": 19,
+      "thu": "2026-10-29",
+      "sun": "2026-11-01",
+      "race": "JTBC 서울마라톤",
+      "type": "테이퍼",
+      "long": "레이스"
+    }
+  ],
+  "progression": [
+    "400+400",
+    "800+400",
+    "800+800",
+    "2000+400",
+    "3000+600"
+  ],
+  "_comment_progression": "시즌 내내 이 순서로 간다. 짧고 빠른 것에서 길고 레이스 페이스에 가까운 것으로.",
+  "routine": [
+    "체조",
+    "워밍업 조깅 7바퀴 (질주 2~3번 섞어서). 날씨에 따라 5~7회전",
+    "본훈련",
+    "쿨다운 조깅",
+    "마무리 스트레칭"
+  ],
+  "crew": {
+    "parent": "GSRC",
+    "team": "G-LAB",
+    "teamKo": "구파발 러닝랩",
+    "chat": "https://open.kakao.com/o/gVvhwsMi",
+    "chatPw": "0801"
+  }
+};
+const c = plan.crew;
+const upcoming = plan.weeks.find(w => w.sun >= today) || plan.weeks[plan.weeks.length - 1];
+const stage = plan.types[upcoming.type] && plan.types[upcoming.type].stage;
+
+el('eb').textContent = `${c.parent} 크루 훈련팀 / ${plan.season.name}`;
+el('ebr').textContent = `목표 ${plan.season.race} ${plan.season.raceDate.replace(/-/g, '.')}`;
+el('pw').textContent = c.chatPw;
+el('chatlink').href = c.chat;
+el('f1').textContent = `${c.parent} ${c.team} / ${c.teamKo}`;
+el('f2').textContent = `${plan.season.totalWeeks}주 프로그램 / 8개 조`;
+el('sched-label').textContent = `총 ${plan.weeks.length}주차`;
+el('stage-label').textContent = stage ? `${plan.progression.indexOf(stage) + 1}단계 / ${stage}` : '';
+
+// 요약 수치
+const raceIn = Math.round((new Date(plan.season.raceDate) - new Date(today)) / 864e5);
+el('facts').innerHTML = [
+  ['이번 주', `<mark>${upcoming.n}</mark>`, `/ ${plan.season.totalWeeks}주차`],
+  ['다음 훈련', md(upcoming.thu), '목'],
+  ['대회까지', raceIn, '일'],
+  ['조 편성', plan.groups.length, '개조'],
+].map(([t, v, u]) => `<div class="fact"><dt>${t}</dt><dd>${v}<s>${u}</s></dd></div>`).join('');
+
+// 조별 기준 페이스
+const keys = Object.keys(plan.offsets);
+el('base').innerHTML =
+  `<thead><tr><th>조</th><th>10km 기준</th><th>목표 풀코스</th>${keys.map(k => `<th>${ZONE[k]}</th>`).join('')}</tr></thead>` +
+  `<tbody>${plan.groups.map(g => {
+    const z = zones(g, plan.offsets);
+    return `<tr><td>${esc(g.id)}</td><td class="pl">${esc(g.tenK)}</td><td class="pl">${esc(g.goal)}</td>` +
+      keys.map(k => cell(pace(z[k]), z[k] + '초')).join('') + '</tr>';
+  }).join('')}</tbody>`;
+
+// 표 세 가지
+const tbl = (head, rows) =>
+  `<div class="scroller"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+
+const lapTable = t => tbl(
+  '<th>조</th><th>총 바퀴</th><th>전반 질주</th><th>후반 질주</th><th>회복</th><th>질주 횟수</th><th>총거리</th><th>예상</th>',
+  plan.groups.map((g, i) => { const s = session(g, i, t, plan.offsets);
+    return `<tr><td>${esc(g.id)}</td>`
+      + cell(s.laps + '바퀴', `1~${s.split} / ${s.split + 1}~${s.laps}`)
+      + cell(s.rep + '초', `${s.repPace} / ${s.repTime}`)
+      + cell(s.back + '초', s.backPace)
+      + cell(s.rec + '초', `${s.recPace} / ${s.recTime}`)
+      + cell(s.reps + '회', `회복 ${s.recs}회`)
+      + cell(s.km + 'km', '') + cell(s.total, '') + '</tr>'; }).join(''));
+
+const setTable = t => tbl(
+  `<th>조</th><th>목표</th><th>질주 ${t.rep}m</th><th>회복 ${t.rec}m</th><th>세트</th><th>총거리</th><th>예상</th>`,
+  plan.groups.map((g, i) => { const s = session(g, i, t, plan.offsets);
+    return `<tr><td>${esc(g.id)}</td><td class="pl">${esc(g.goal)}</td>`
+      + cell(s.rep + '초', `${s.repPace} / ${s.repTime}`)
+      + cell(s.rec + '초', `${s.recPace} / ${s.recTime}`)
+      + cell(s.sets + '세트', '')
+      + cell(s.km + 'km', s.laps + '바퀴') + cell(s.total, '') + '</tr>'; }).join(''));
+
+const rawTable = t => tbl(
+  `<th>조</th><th>질주 ${t.rep}m</th><th>회복 ${t.rec}m</th><th>세트</th><th>총거리</th><th>소요</th>`,
+  plan.groups.map((g, i) => { const s = session(g, i, t, plan.offsets);
+    return `<tr><td>${esc(g.id)}</td>`
+      + cell(s.rep + '초', `${s.repPace} / ${s.repTime}`)
+      + cell(s.recTime, s.recPace)
+      + cell(s.sets + '세트', s.last ? `마지막 ${esc(s.last)}` : '')
+      + cell(s.km + 'km', '') + cell(s.total, '') + '</tr>'; }).join(''))
+  + (t.source ? `<div class="src">원본 ${esc(t.source)} / 조 배정 기준 ${esc(t.basis)}</div>` : '');
+
+const renderTable = t => t.mode === 'laps' ? lapTable(t) : t.mode === 'table' ? rawTable(t) : setTable(t);
+
+const body = w => {
+  const t = plan.types[w.type];
+  return `
+    <div class="blk">
+      <h3><b>목요일</b><span>트랙 ${esc(t ? t.label : w.type)}</span></h3>
+      ${t ? renderTable(t) : '<p class="long">조별표 미정. 훈련 포맷 확정 후 반영한다.</p>'}
+      ${t && t.rules ? `<ul class="rules">${t.rules.map(r => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}
+    </div>
+    <div class="blk">
+      <h3><b>일요일</b><span>장거리</span></h3>
+      <p class="long">${esc(w.long)}</p>
+    </div>
+    ${w.draft ? '<p class="note warn">원본 자료가 없어 변속주 진행 순서로 배치한 추정치다. 확정되면 갱신한다.</p>' : ''}`;
+};
+
+// 이번 주
+el('now').innerHTML = `
+  <div class="hd">
+    <span class="wk"><mark>${upcoming.n}</mark>주차</span>
+    <span class="dt">${md(upcoming.thu)}(목) / ${md(upcoming.sun)}(일)</span>
+    ${upcoming.race ? `<span class="rc"><b>${esc(upcoming.race)}</b></span>` : ''}
+  </div>
+  ${body(upcoming)}`;
+
+// 변속주 5단계
+el('steps').innerHTML = plan.progression.map((k, n) =>
+  `<li class="${k === stage ? 'on' : ''}"><span><b>${n + 1}</b>${esc(k)}</span></li>`).join('');
+
+// 훈련 공통 순서
+el('routine-list').innerHTML = plan.routine.map(r => `<li><span>${esc(r.split(' (')[0])}</span></li>`).join('');
+
+// 달력. 목요일은 트랙, 일요일은 장거리로 찍는다.
+const marks = {};
+plan.weeks.forEach(w => {
+  marks[w.thu] = { w, kind: 't', label: w.type };
+  marks[w.sun] = { w, kind: 'l', label: '장거리' };
+});
+
+const pad = n => String(n).padStart(2, '0');
+const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+
+function month(y, m) {                       // m 은 1~12
+  const start = new Date(y, m - 1, 1).getDay();
+  const days = new Date(y, m, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < start; i++) cells.push('<td></td>');
+  for (let d = 1; d <= days; d++) {
+    const iso = `${y}-${pad(m)}-${pad(d)}`;
+    const k = marks[iso];
+    const cls = [k && k.w === upcoming ? 'on' : '', iso < today ? 'past' : ''].filter(Boolean).join(' ');
+    let inner = `<b>${d}</b>`;
+    if (k) {
+      inner += `<i class="${k.kind}" title="${k.w.n}주차 ${esc(k.label)}">${esc(k.label)}</i>`;
+      if (k.kind === 'l' && k.w.race) inner += `<i class="r" title="${esc(k.w.race)}">${esc(k.w.race)}</i>`;
+    }
+    cells.push(`<td class="${cls}">${inner}</td>`);
+  }
+  while (cells.length % 7) cells.push('<td></td>');
+  const rows = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(`<tr>${cells.slice(i, i + 7).join('')}</tr>`);
+  const wks = plan.weeks.filter(w => w.thu.startsWith(`${y}-${pad(m)}`) || w.sun.startsWith(`${y}-${pad(m)}`));
+  const a = wks[0], b = wks[wks.length - 1];
+  const span = !wks.length ? '' : a === b ? `${a.n}주차` : `${a.n}~${b.n}주차`;
+  return `<div class="mo"><h3>${y}년 ${m}월</h3><span>${span}</span></div>
+    <table class="cal"><thead><tr>${DOW.map(d => `<th>${d}</th>`).join('')}</tr></thead>
+    <tbody>${rows.join('')}</tbody></table>`;
+}
+
+const [y0, m0] = plan.weeks[0].thu.split('-').map(Number);
+const [y1, m1] = plan.weeks[plan.weeks.length - 1].sun.split('-').map(Number);
+const months = [];
+for (let y = y0, m = m0; y < y1 || (y === y1 && m <= m1); m === 12 ? (m = 1, y++) : m++) months.push([y, m]);
+el('cal').innerHTML = months.map(([y, m]) => month(y, m)).join('');
+
+// 뷰 토글
+document.querySelectorAll('.vt button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.vt button').forEach(b => {
+      const on = b === btn;
+      b.setAttribute('aria-pressed', on);
+      document.querySelector(`[data-view="${b.dataset.v}"]`).hidden = !on;
+    });
+  });
+});
+
+// 전체 일정
+el('weeks').innerHTML = plan.weeks.map(w => `
+  <details class="${w.sun < today ? 'done' : ''}">
+    <summary>
+      <b>${w.n}주차</b>
+      <span class="d">${md(w.thu)} / ${md(w.sun)}</span>
+      <span class="t">${esc(w.type)}</span>
+      <span class="x">${w === upcoming ? '<i>이번 주</i> ' : ''}${w.draft ? '<u>추정</u> ' : ''}${w.race ? esc(w.race) : ''}</span>
+    </summary>
+    <div class="body">${body(w)}</div>
+  </details>`).join('');
+
+</script>
+</body>
+</html>
