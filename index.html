@@ -318,15 +318,15 @@ footer{margin:72px 0 0;border-top:2px solid #000;padding-top:14px;font-size:11.5
 
 <section id="schedule">
   <div class="shead"><h2>전체 일정</h2><span id="sched-label"></span></div>
-  <div class="vt" role="group" aria-label="보기 방식">
-    <button type="button" data-v="list" aria-pressed="true">주차별</button>
-    <button type="button" data-v="cal" aria-pressed="false">달력</button>
+  <div class="vt" id="viewtabs" role="group" aria-label="보기 방식">
+    <button type="button" data-v="list" aria-pressed="false">주차별</button>
+    <button type="button" data-v="cal" aria-pressed="true">달력</button>
   </div>
-  <div data-view="list">
+  <div data-view="list" hidden>
     <p class="lede">주차를 눌러 조별표를 펼친다.</p>
     <div id="weeks"></div>
   </div>
-  <div data-view="cal" hidden>
+  <div data-view="cal">
     <div id="cal"></div>
     <div class="callegend">
       <span><em class="t"></em>목요일 트랙</span>
@@ -620,21 +620,20 @@ drawMonth();
 
 // 뷰 토글. #cal 로 들어오면 달력이 먼저 열린다.
 function setView(v) {
-  document.querySelectorAll('.vt button').forEach(b => {
+  el('viewtabs').querySelectorAll('button').forEach(b => {
     const on = b.dataset.v === v;
     b.setAttribute('aria-pressed', on);
     document.querySelector(`[data-view="${b.dataset.v}"]`).hidden = !on;
   });
 }
-document.querySelectorAll('.vt button').forEach(btn =>
+el('viewtabs').querySelectorAll('button').forEach(btn =>
   btn.addEventListener('click', () => {
     setView(btn.dataset.v);
-    history.replaceState(null, '', btn.dataset.v === 'cal' ? '#cal' : '#schedule');
+    history.replaceState(null, '', btn.dataset.v === 'list' ? '#list' : '#cal');
   }));
-if (location.hash === '#cal') {
-  setView('cal');
-  document.getElementById('schedule').scrollIntoView();
-}
+// 기본은 달력. #list 로 들어오면 주차별 목록으로 연다.
+if (location.hash === '#list') setView('list');
+if (location.hash === '#cal' || location.hash === '#list') el('schedule').scrollIntoView();
 
 // 주차 상세 시트. 달력에서 훈련일을 누르면 열린다.
 const sheet = el('sheet'), scrim = el('scrim');
