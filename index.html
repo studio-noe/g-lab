@@ -587,7 +587,9 @@ const cell = (big, small) => `<td><b>${big}</b>${small ? `<s>${small}</s>` : ''}
 // 코드가 틀리면 AES-GCM 인증이 깨져 decrypt 가 그대로 던진다.
 // glab.html(오프라인 단일 파일)에는 평문이 들어간다. 그 파일은 git 에 올리지 않는다.
 const ENC = null, RAW = null;
-const CK = 'glab.code';
+// 입장 세션. 코드를 만료 시각과 함께 저장하고, 지나면 다시 묻는다.
+// 코드를 바꿔 다시 빌드하면 저장된 코드로는 복호화가 깨져 만료 전이라도 다시 묻는다.
+const CK = 'glab.code', TTL = 7 * 24 * 60 * 60 * 1000;   // 7일
 const plan = await unlock();
 
 async function unlock() {
@@ -606,7 +608,14 @@ async function unlock() {
     return JSON.parse(new TextDecoder().decode(pt));
   };
 
-  const saved = (() => { try { return localStorage.getItem(CK); } catch (e) { return null; } })();
+  const saved = (() => {
+    try {
+      const v = JSON.parse(localStorage.getItem(CK));
+      if (!v || !v.c) return null;
+      if (Date.now() > v.e) { localStorage.removeItem(CK); return null; }
+      return v.c;
+    } catch (e) { return null; }
+  })();
   if (saved) { try { return await tryCode(saved); } catch (e) {} }
 
   const gate = el('gate'), form = el('gatef'), input = el('gatei'),
@@ -623,7 +632,7 @@ async function unlock() {
       btn.disabled = true; err.textContent = '확인하는 중';
       try {
         const data = await tryCode(code);
-        try { localStorage.setItem(CK, code); } catch (e) {}
+        try { localStorage.setItem(CK, JSON.stringify({ c: code, e: Date.now() + TTL })); } catch (e) {}
         document.body.classList.remove('locked');
         gate.hidden = true;
         resolve(data);
