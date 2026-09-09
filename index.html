@@ -458,7 +458,34 @@ body.locked .wrap,body.locked .sheet,body.locked .scrim{display:none}
 }
 .gate .err{margin:12px 0 0;font-size:13px;font-weight:700;min-height:1.2em}
 .gate .err b{background:#000;color:#fff;padding:2px 7px;font-weight:700}
-.gate .foot{margin:34px 0 0;padding-top:12px;border-top:1px solid var(--hair)}
+.gate .foot{margin:34px 0 0;padding-top:12px;border-top:1px solid var(--hair);text-align:right}
+
+/* ---- 페이스 계산기 ----
+   처방은 1레인 400m 기준인데 실제로는 바깥 레인에서 뛴다. 그 차이를 직접 넣어 본다.
+   레인 선택은 뷰 토글(.vt)을 그대로 쓴다. */
+.calc{border-top:1px solid #000;padding:18px 0 4px;margin:0 0 22px}
+.calcin{display:flex;flex-wrap:wrap;gap:16px 30px;align-items:flex-end}
+.calcin>div{display:flex;flex-direction:column;gap:7px}
+.calcin dt{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.calcin .f{display:flex;align-items:baseline;gap:6px;border-bottom:2px solid #000;width:max-content}
+.calcin .f:focus-within{border-bottom-color:var(--acc)}
+.calcin input{appearance:none;background:none;border:0;font:inherit;width:74px;text-align:right;
+ font-size:24px;font-weight:800;letter-spacing:-.02em;padding:2px 0;color:#000;
+ font-variant-numeric:tabular-nums}
+.calcin input:focus{outline:0}
+.calcin input::-webkit-outer-spin-button,
+.calcin input::-webkit-inner-spin-button{appearance:none;margin:0}
+.calcin .f s{text-decoration:none;font-size:12.5px;color:var(--dim)}
+.calc .vt{margin:0}
+.calc .vt button{padding:9px 12px;font-size:13px;font-weight:800}
+.calcout{margin:22px 0 0}
+.calcpace{margin:0 0 16px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.calcpace b{font-size:clamp(30px,6vw,44px);font-weight:800;letter-spacing:-.04em;line-height:1.05;
+ background:var(--acc);padding:0 8px}
+.calcpace span{font-size:13px;color:var(--dim)}
+.calcout .scroller+.scroller{margin-top:14px}
+.calcout td.me{background:var(--acc-soft);font-weight:800}
+.calcnote{margin:0;font-size:12.5px;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -550,6 +577,22 @@ body.locked .wrap,body.locked .sheet,body.locked .scrim{display:none}
 <section id="pacechart">
   <div class="shead"><h2>페이스 환산표</h2><span>참고</span></div>
   <p class="lede">우리 훈련표는 1레인 400m 기준이다. 바깥 레인에서 뛰면 한 바퀴가 길어지니 랩타임도 그만큼 늘려야 같은 페이스가 된다.</p>
+
+  <div class="calc">
+    <div class="calcin">
+      <div>
+        <dt>400m 랩타임</dt>
+        <div class="f"><input id="clap" type="number" inputmode="numeric" min="30" max="300"
+             step="1" aria-label="400m 랩타임(초)"><s>초</s></div>
+      </div>
+      <div>
+        <dt>뛴 레인</dt>
+        <div class="vt" id="clane" role="group" aria-label="레인 선택"></div>
+      </div>
+    </div>
+    <div class="calcout" id="calcout"></div>
+  </div>
+
   <div id="charts"></div>
 </section>
 
@@ -932,6 +975,37 @@ function drawCharts() {
     <details class="chartwrap"><summary>거리별 통과시간</summary>
       <div class="body">${distTable}</div></details>`;
 }
+
+// ---- 페이스 계산기 ----
+// 레인이 바깥일수록 한 바퀴가 길다. 같은 랩타임이라도 실제 페이스는 그만큼 빨라진다.
+let cLane = 0;
+el('clane').innerHTML = LANES.map((l, i) =>
+  `<button type="button" data-i="${i}" aria-pressed="${i === 0}" title="${l}m">${i + 1}</button>`).join('');
+el('clane').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  cLane = +b.dataset.i;
+  [...el('clane').children].forEach((x, i) => x.setAttribute('aria-pressed', i === cLane));
+  calcDraw();
+});
+el('clap').addEventListener('input', calcDraw);
+
+function calcDraw() {
+  const lap = parseFloat(el('clap').value);
+  const out = el('calcout');
+  if (!(lap > 0)) { out.innerHTML = '<p class="calcnote">랩타임을 넣으면 환산된다.</p>'; return; }
+  const p = lap * 1000 / LANES[cLane];   // km 당 초
+  out.innerHTML = `
+    <p class="calcpace"><b>${clk(p)}</b><span>/ km &nbsp;/&nbsp; 한 바퀴 ${LANES[cLane]}m</span></p>
+    ${tbl(LANES.map((l, i) => `<th>${i + 1}레인<s>${l}m</s></th>`).join(''),
+      `<tr>${LANES.map((l, i) =>
+        `<td class="n${i === cLane ? ' me' : ''}">${(p * l / 1000).toFixed(1)}초</td>`).join('')}</tr>`)}
+    ${tbl('<th>1km</th><th>3km</th><th>5km</th><th>10km</th><th>하프</th><th>풀코스</th>',
+      `<tr><td class="n">${clk(p)}</td><td class="n">${clk(p * 3)}</td><td class="n">${clk(p * 5)}</td>`
+      + `<td class="n">${clk(p * 10)}</td><td class="n">${hms(p * 21.0975)}</td>`
+      + `<td class="n">${hms(p * 42.195)}</td></tr>`)}`;
+}
+el('clap').value = mine() >= 0 ? plan.groups[mine()].lap : 108;
+calcDraw();
 
 // 훈련 공통 순서
 el('routine-list').innerHTML = plan.routine.map(r => `<li><span>${esc(r.split(' (')[0])}</span></li>`).join('');
