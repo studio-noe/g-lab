@@ -52,6 +52,7 @@ node build.mjs --decrypt
 | `check.mjs` | 크루 배포 원본표 재현 검증 |
 | `build.mjs` | 단일 파일(`glab.html`)과 공유 카드(`og.png`) 생성 |
 | `og.html` | 공유 카드 원본 |
+| `icon-src.png` | 파비콘 원본 로고. 여기서 512/180/32 를 뽑는다 |
 | `glab.html` | 서버 없이 열리는 단일 파일. **평문이라 커밋 안 함** |
 | `design.html` | 디자인 가이드 지면 |
 | `DESIGN.md` | 디자인 기준 |

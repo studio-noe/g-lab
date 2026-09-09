@@ -65,16 +65,18 @@ if (existsSync(chrome)) {
       '--screenshot=og.png', '--window-size=1200,630', `file://${process.cwd()}/og.html`],
       { stdio: 'ignore' });
     console.log('og.png 갱신됨 (1200x630)');
-    // 크롬은 축소 배율을 하한에서 잘라버린다. 512 로 한 번 렌더하고 sips 로 줄인다.
-    execFileSync(chrome, ['--headless', '--disable-gpu', '--hide-scrollbars',
-      '--screenshot=icon-512.png', '--window-size=512,512',
-      `file://${process.cwd()}/icon.html`], { stdio: 'ignore' });
-    for (const size of [180, 32]) {
-      execFileSync('sips', ['-z', String(size), String(size), 'icon-512.png',
-        '--out', `icon-${size}.png`], { stdio: 'ignore' });
-    }
-    console.log('파비콘 갱신됨 (512/180/32)');
   } catch { console.log('og.png 갱신 실패. 기존 파일을 유지한다.'); }
 } else {
   console.log('크롬 없음. og.png 는 기존 파일을 유지한다.');
+}
+
+// 파비콘. icon-src.png(로고 원본)에서 필요한 크기만 뽑는다.
+if (existsSync('icon-src.png')) {
+  for (const size of [512, 180, 32]) {
+    execFileSync('sips', ['-z', String(size), String(size), 'icon-src.png',
+      '--out', `icon-${size}.png`], { stdio: 'ignore' });
+  }
+  console.log('파비콘 갱신됨 (512/180/32)');
+} else {
+  console.log('icon-src.png 없음. 파비콘은 기존 파일을 유지한다.');
 }
